@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:quickbite/controller/login_controller.dart';
-import 'package:quickbite/register.dart';
+import 'package:quickbite/pages/login.dart';
+import 'package:quickbite/widgets/otp_text_fields.dart';
 
-class Login extends StatefulWidget {
+class Register extends StatefulWidget {
   @override
-  State<Login> createState() => _LoginState();
+  State<Register> createState() => _RegisterState();
 }
 
-class _LoginState extends State<Login> {
+class _RegisterState extends State<Register> {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<LoginController>(builder: (ctrl) {
@@ -23,7 +24,10 @@ class _LoginState extends State<Login> {
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [Color(0xFFff5c30), Color(0xFFe74b1a)],
+                  colors: [
+                    Color(0xFFff5c30),
+                    Color(0xFFe74b1a),
+                  ],
                 ),
               ),
             ),
@@ -51,13 +55,11 @@ class _LoginState extends State<Login> {
                 child: Column(
                   children: [
                     // Logo
-                    ClipRRect(
-                      child: Center(
-                        child: Image.asset(
-                          "images/logofast.png",
-                          width: MediaQuery.of(context).size.width / 1.5,
-                          fit: BoxFit.cover,
-                        ),
+                    Center(
+                      child: Image.asset(
+                        "images/logofast.png",
+                        width: MediaQuery.of(context).size.width / 1.5,
+                        fit: BoxFit.cover,
                       ),
                     ),
                     const SizedBox(height: 100),
@@ -67,19 +69,34 @@ class _LoginState extends State<Login> {
                       children: [
                         const SizedBox(height: 50),
                         const Text(
-                          'Login',
+                          'Create Your Account !!',
                           style: TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
                           ),
                         ),
-                        const SizedBox(height: 18),
+                        const SizedBox(height: 8),
+
+                        // Name input
+                        TextField(
+                          keyboardType: TextInputType.text,
+                          controller: ctrl.registerNameCtrl,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            prefixIcon: const Icon(Icons.person),
+                            labelText: 'Your Name',
+                            hintText: 'Enter Your Name',
+                          ),
+                        ),
+                        const SizedBox(height: 20),
 
                         // Mobile number input
                         TextField(
-                          controller: ctrl.loginNumberCtrl,
                           keyboardType: TextInputType.phone,
+                          controller: ctrl.registerNumberCtrl,
                           decoration: InputDecoration(
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -91,55 +108,40 @@ class _LoginState extends State<Login> {
                         ),
                         const SizedBox(height: 20),
 
-                        // Login button
+                        // OTP input
+                        OtpTxtField(
+                          otpController: ctrl.otpController,
+                          visible: ctrl.otpFieldShown,
+                          onComplete: (otp) {
+                            ctrl.otpEntered = int.tryParse(otp ?? '0000');
+                          },
+                        ),
+                        const SizedBox(height: 20),
+
+                        // Register or Send OTP button
                         ElevatedButton(
                           onPressed: () {
-                            ctrl.loginWithPhone();
+                            if (ctrl.otpFieldShown) {
+                              ctrl.addUser();
+                            } else {
+                              ctrl.sendOtp();
+                            }
                           },
                           style: ElevatedButton.styleFrom(
                             foregroundColor: Colors.white,
                             backgroundColor: Colors.redAccent,
                           ),
-                          child: const Text('Login'),
+                          child: Text(
+                              ctrl.otpFieldShown ? 'Register' : 'Send OTP'),
                         ),
                         const SizedBox(height: 8),
 
-                        // Google sign-in button
-                        GestureDetector(
-                          onTap: () {
-                            ctrl.loginWithGoogle();
-                          },
-                          child: Container(
-                            width: 200,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            decoration: BoxDecoration(
-                              color: Colors.redAccent,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: const Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.login, // Placeholder for Google icon
-                                  color: Colors.white,
-                                ),
-                                SizedBox(width: 8),
-                                Text(
-                                  'Sign in with Google',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-
-                        // Register new account
+                        // Navigate to Login page
                         TextButton(
                           onPressed: () {
-                            Get.to(Register());
+                            Get.to(Login());
                           },
-                          child: const Text('Register new account'),
+                          child: const Text('Login'),
                         ),
                       ],
                     ),
